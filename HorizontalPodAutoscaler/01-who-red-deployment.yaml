@@ -1,10 +1,6 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-    field.cattle.io/publicEndpoints: '[{"addresses":["192.168.8.220"],"port":80,"protocol":"HTTP","serviceName":"default:whored","ingressName":"default:whoami-ingress","hostname":"red.example.com","path":"/","allNodes":false}]'
-  creationTimestamp: "2019-05-05T00:15:37Z"
   generation: 3
   labels:
     app: whored
@@ -50,22 +46,3 @@ spec:
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
-status:
-  availableReplicas: 4
-  conditions:
-  - lastTransitionTime: "2019-05-05T00:15:41Z"
-    lastUpdateTime: "2019-05-05T00:15:41Z"
-    message: Deployment has minimum availability.
-    reason: MinimumReplicasAvailable
-    status: "True"
-    type: Available
-  - lastTransitionTime: "2019-05-05T00:15:37Z"
-    lastUpdateTime: "2019-05-05T00:15:42Z"
-    message: ReplicaSet "whored-67f966cfbd" has successfully progressed.
-    reason: NewReplicaSetAvailable
-    status: "True"
-    type: Progressing
-  observedGeneration: 3
-  readyReplicas: 4
-  replicas: 4
-  updatedReplicas: 4
