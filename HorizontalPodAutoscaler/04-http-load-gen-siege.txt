@@ -1,0 +1,5 @@
+# Generating some http Load on deployment we created using seige.
+# Generate High Load.
+siege -q -c 250 -t 4m http://192.168.8.222
+# Generate Minimum Load.
+siege -q -c 2 -t 4m http://192.168.8.222

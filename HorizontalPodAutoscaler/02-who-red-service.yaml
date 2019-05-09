@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    field.cattle.io/publicEndpoints: '[{"addresses":["192.168.8.222"],"port":80,"protocol":"TCP","serviceName":"default:whored","allNodes":false}]'
+    traefik.ingress.kubernetes.io/affinity: "true"
+    traefik.ingress.kubernetes.io/session-cookie-name: whored
+  creationTimestamp: "2019-05-05T00:15:38Z"
+  labels:
+    app: whored
+  name: whored
+  namespace: default
+  resourceVersion: "2890243"
+  selfLink: /api/v1/namespaces/default/services/whored
+  uid: e93e881c-6eca-11e9-862c-000c2937d745
+spec:
+  clusterIP: 10.97.246.23
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 32180
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: whored
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: 192.168.8.222
