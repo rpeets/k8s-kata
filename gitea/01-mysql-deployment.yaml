@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitea
+
+---
+# Creating Secret manually, Instructions
+# echo -n 'admin' | base64
+# YWRtaW4=
+# echo -n '1f2d1e2e67df' | base64
+# MWYyZDFlMmU2N2Rm
+# Write a Secret that looks like this:
+#--------------------------#
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: mysecret
+# type: Opaque
+# data:
+#   username: YWRtaW4=
+#   password: MWYyZDFlMmU2N2Rm
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-pass
+  namespace: gitea
+type: Opaque
+data:
+  password: bXlwYXNzd29yZA==
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    db: mysql
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: gitea
+  name: gitea-mysql
+  labels:
+    db: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+      db: mysql
+  template:
+    metadata:
+      labels:
+        app: gitea
+        db: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0.15
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        - name: MYSQL_DATABASE
+          value: gitea
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: gitea
+  name: mysql-service
+  labels:
+    db: mysql
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: gitea
+    db: mysql
+  clusterIP: None
+#  type: NodePort

@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitea-pv-claim
+  labels:
+    db: gitea
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: gitea
+  name: gitea-deploy
+  labels:
+    app: gitea
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gitea
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: gitea
+        tier: frontend
+    spec:
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.8.1
+        env:
+        - name: DB_TYPE
+          value: mysql
+        - name: DB_HOST
+          value: mysql-service
+        - name: DB_NAME
+          value: gitea
+        - name: DB_USER
+          value: root
+        - name: MYSQL_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 3000
+          name: gitea
+        volumeMounts:
+        - name: gitea-persistent-storage
+          mountPath: /data
+      volumes:
+      - name: gitea-persistent-storage
+        persistentVolumeClaim:
+          claimName: gitea-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitea
+  namespace: gitea
+  labels:
+    app: gitea
+spec:
+  selector:
+    app: gitea
+    tier: frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: LoadBalancer
