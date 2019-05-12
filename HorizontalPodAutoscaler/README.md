@@ -14,7 +14,7 @@ kubectl apply -f 02-who-red-service.yaml
 ```
 
 ### Step-3 Create a Horizontal Pod Autoscaler
-```shell
+``` shell
 kubectl apply -f 03-hpa-who-red.yaml
 ```
 
