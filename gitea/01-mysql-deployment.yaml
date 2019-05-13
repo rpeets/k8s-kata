@@ -4,6 +4,23 @@ metadata:
   name: gitea
 
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: gitea
+  name: mysql-service
+  labels:
+    db: mysql
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: gitea
+    db: mysql
+  clusterIP: None
+#  type: NodePort
+
+---
 # Creating Secret manually, Instructions
 # echo -n 'admin' | base64
 # YWRtaW4=
@@ -89,19 +106,3 @@ spec:
         persistentVolumeClaim:
           claimName: mysql-pv-claim
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: gitea
-  name: mysql-service
-  labels:
-    db: mysql
-spec:
-  ports:
-    - port: 3306
-  selector:
-    app: gitea
-    db: mysql
-  clusterIP: None
-#  type: NodePort
